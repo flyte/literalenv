@@ -20,7 +20,7 @@ def literalenv(args):
         sys.stderr.write(str(exc))
         sys.exit(1)
 
-    if args.bool:
+    if args.bool or args.bool_rc:
         return bool(evald)
     return evald
 
@@ -37,8 +37,23 @@ def main():
         default=False,
         help="Output 'None' if the env var doesn't exist.",
     )
+    p.add_argument(
+        "--bool-rc",
+        action="store_true",
+        default=False,
+        help="Cast the value to a boolean and exit with code 1 if False, 0 if True",
+    )
+    p.add_argument(
+        "-q", action="store_true", default=False, help="Don't output anything to stdout."
+    )
     args = p.parse_args()
-    print(literalenv(args))
+    evald = literalenv(args)
+
+    if not args.q:
+        print(evald)
+
+    if args.bool_rc:
+        sys.exit(1 - int(evald))
 
 
 if __name__ == "__main__":
